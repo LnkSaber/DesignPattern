@@ -243,3 +243,132 @@ CountDownLatch
 
 
 ![1557502204356](assets/1557502204356.png)
+
+## 2.工厂模式：实现了创建者和调用者的分离
+
+### 核心本质：
+
+– 实例化对象，用工厂方法代替new操作。
+– 将选择实现类、创建对象统一管理和控制。从而将调用者跟我们的实现类解耦。
+
+### 分类：
+
+– 简单工厂模式
+**• 用来生产同一等级结构中的任意产品。（对于增加新的产品，需要修改已**
+**有代码）**
+– 工厂方法模式
+**• 用来生产同一等级结构中的固定产品。（支持增加任意产品）**
+– 抽象工厂模式
+**• 用来生产不同产品族的全部产品。（对于增加新的产品，无能为力；支持**
+**增加产品族）**
+
+### 应用场景
+
+– JDK中Calendar的getInstance方法
+– JDBC中Connection对象的获取
+– Hibernate中SessionFactory创建Session
+– spring中IOC容器创建管理bean对象
+– XML解析时的DocumentBuilderFactory创建解析器对象
+– 反射中Class对象的newInstance()
+
+### 1.简单工厂模式
+
+#### 1.1不使用简单工厂的情况
+
+~~~java
+public class Client01 { //调用者
+public static void main(String[] args) {
+Car c1 = new Audi();
+Car c2 = new Byd();
+c1.run();
+c2.run();
+}
+}
+~~~
+
+![1557632420946](assets/1557632420946.png)
+
+#### 1.2简单工厂
+
+#### 要点：
+
+– 简单工厂模式也叫静态工厂模式，就是工厂类一般是使用静态方法，
+通过接收的参数的不同来返回不同的对象实例。
+– 对于增加新产品无能为力！不修改代码的话，是无法扩展的
+
+~~~java
+public class CarFactory {
+public static Car createCar(String type){
+Car c = null;
+if("奥迪".equals(type)){
+c = new Audi();
+}else if("奔驰".equals(type)){
+c = new Benz();
+}
+return c;
+}
+}
+~~~
+
+~~~java
+public class CarFactory {
+public static Car createAudi(){
+return new Audi();
+}
+public static Car createBenz(){
+return new Benz();
+}
+}
+~~~
+
+![1557632498166](assets/1557632498166.png)
+
+### 2.工厂方法模式
+
+工厂方法模式要点：
+– 为了避免简单工厂模式的缺点，不完全满足OCP。
+– 工厂方法模式和简单工厂模式最大的不同在于，简单工厂模式只有一个（对于一个项目
+或者一个独立模块而言）工厂类，而工厂方法模式有一组实现了相同接口的工厂类。
+
+```java
+public  class Client  {
+	public static void main(String[] args) {
+		Car c1 = new AudiFactory().createCar();
+		Car c2 = new BydFactory().createCar();
+		
+		c1.run();
+		c2.run();
+	}
+}
+```
+
+![1557632536788](assets/1557632536788.png)
+
+![1557632549726](assets/1557632549726.png)
+
+
+
+### 3.抽象工厂模式
+
+抽象工厂模式
+– 用来生产不同产品族的全部产品。（对于增加新的产品，无能为力；
+支持增加产品族）
+– 抽象工厂模式是工厂方法模式的升级版本，在有多个业务品种、业务
+分类时，通过抽象工厂模式产生需要的对象是一种非常好的解决方式。
+
+~~~java
+public class Client {
+    public static void main(String[] args) {
+     CarFactory factory = new LuxuryCarFactory();
+        Engine engine = factory.createEngine();
+        engine.run();
+        engine.start();
+        factory.createXXX();
+    }
+}
+
+~~~
+
+![1557632602424](assets/1557632602424.png)
+
+![1557632616590](assets/1557632616590.png)

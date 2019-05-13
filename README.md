@@ -372,3 +372,148 @@ public class Client {
 ![1557632602424](assets/1557632602424.png)
 
 ![1557632616590](assets/1557632616590.png)
+
+
+
+## 3.建造者模式
+
+##### 1、定义：将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示
+
+##### 2、主要作用：在用户不知道对象的建造过程和细节的情况下就可以直接创建复杂的对象。
+
+##### 3、如何使用：用户只需要给出指定复杂对象的类型和内容，建造者模式负责按顺序创建复杂对象（把内部的建造过程和细节隐藏起来）
+
+##### 4、解决的问题：
+
+​        （1）、方便用户创建复杂的对象（不需要知道实现过程）
+​        （2）、代码复用性 & 封装性（将对象构建过程和细节进行封装 & 复用）
+
+###### 5、注意事项：与工厂模式的区别是：建造者模式更加关注与零件装配的顺序，一般用来创建更为复杂的对象
+
+### 实现方式
+
+> （1）通过Client、Director、Builder和Product形成的建造者模式
+>
+> （2）通过静态内部类方式实现零件无序装配话构造
+
+
+
+### 1.通过Client、Director、Builder和Product形成的建造者模式
+
+一般有以下几个角色
+抽象建造者（builder）：描述具体建造者的公共接口，一般用来定义建造细节的方法，并不涉及具体的对象部件的创建。
+
+具体建造者（ConcreteBuilder）：描述具体建造者，并实现抽象建造者公共接口。
+
+指挥者（Director）：调用具体建造者来创建复杂对象（产品）的各个部分，并按照一定顺序（流程）来建造复杂对象。
+
+产品（Product）：描述一个由一系列部件组成较为复杂的对象。
+
+（2）举个例子
+既然是建造者模式，那么就继续造火箭吧
+
+假设造房简化为如下步骤：（1）轨道舱（2）发动机（3）逃逸塔
+
+“如果”要造一艘火箭，首先要找航天部的科学家（指挥者）。承包商指挥工人（具体建造者）过来造火箭（产品），最后验收。
+
+（3）具体步骤
+1、创建抽象建造者定义造火箭步骤
+
+2、创建工人具体实现造火箭步骤
+
+3、创建承包商指挥工人施工
+
+4、验收，检查是否建造完成
+
+
+
+![1557734487873](assets/1557734487873.png)
+
+（2）通过静态内部类方式实现零件无序装配话构造/通过构造函数装配特定属性，返回指定熟悉类(已加载属性)
+
+Eg：Swagger2的 ApiInfo类的装配过程
+
+~~~java
+public class ApiInfoBuilder {
+  private String title;
+  private String description;
+  private String termsOfServiceUrl;
+  private Contact contact;
+  private String license;
+  private String licenseUrl;
+  private String version;
+  private List<VendorExtension> vendorExtensions = newArrayList();
+
+  public ApiInfoBuilder title(String title) {
+    this.title = title;
+    return this;
+  }
+
+  public ApiInfoBuilder description(String description) {
+    this.description = description;
+    return this;
+  }
+
+  public ApiInfoBuilder termsOfServiceUrl(String termsOfServiceUrl) {
+    this.termsOfServiceUrl = termsOfServiceUrl;
+    return this;
+  }
+
+  public ApiInfoBuilder version(String version) {
+    this.version = version;
+    return this;
+  }
+
+  @Deprecated
+  public ApiInfoBuilder contact(String contact) {
+    this.contact = new Contact(contact, "", "");
+    return this;
+  }
+  public ApiInfoBuilder contact(Contact contact) {
+    this.contact = contact;
+    return this;
+  }
+
+  public ApiInfoBuilder license(String license) {
+    this.license = license;
+    return this;
+  }
+
+  public ApiInfoBuilder licenseUrl(String licenseUrl) {
+    this.licenseUrl = licenseUrl;
+    return this;
+  }
+
+  public ApiInfoBuilder extensions(List<VendorExtension> extensions) {
+    this.vendorExtensions.addAll(nullToEmptyList(extensions));
+    return this;
+  }
+
+  public ApiInfo build() {
+    return new ApiInfo(title, description, version, termsOfServiceUrl, contact, license, licenseUrl, vendorExtensions);
+  }
+}
+~~~
+
+### 总结
+
+（1）优点
+1、产品的建造和表示分离，实现了解耦。
+
+2、将复杂产品的创建步骤分解在不同的方法中，使得创建过程更加清晰
+
+3、增加新的具体建造者无需修改原有类库的代码，易于拓展，符合“开闭原则“。
+
+（2）缺点
+1、产品必须有共同点，限制了使用范围。
+
+ 2、如内部变化复杂，会有很多的建造类，难以维护。
+
+（3）应用场景
+1、需要生成的产品对象有复杂的内部结构，这些产品对象具备共性；
+
+2、隔离复杂对象的创建和使用，并使得相同的创建过程可以创建不同的产品。
+
+3、需要生成的对象内部属性本身相互依赖。
+
+4、适合于一个具有较多的零件（属性）的产品（对象）的创建过程。

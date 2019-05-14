@@ -517,3 +517,123 @@ public class ApiInfoBuilder {
 3、需要生成的对象内部属性本身相互依赖。
 
 4、适合于一个具有较多的零件（属性）的产品（对象）的创建过程。
+
+
+
+## 4.原型模式：**使用原型实例指定待创建对象的类型，并且通过复制这个原型来创建新的对象**
+
+原型模式：
+– 通过new产生一个对象需要非常繁琐的数据准备或访问权限，则可以使用原型模式。
+– 就是java中的克隆技术，以某个对象为原型，复制出新的对象。显然，新的对象具备原型对象的特点
+– 优势有：效率高(直接克隆，避免了重新执行构造过程步骤) 。
+– 克隆类似于new，但是不同于new。new创建新的对象属性采用的是默认值。克隆出的
+对象的属性值完全和原型对象相同。并且克隆出的新对象改变不会影响原型对象。然后，
+再修改克隆对象的值。
+• 原型模式实现：
+– Cloneable接口和clone方法
+– Prototype模式中实现起来最困难的地方就是内存复制操作，所幸在Java中提供了
+clone()方法替我们做了绝大部分事情
+
+
+
+
+
+![t01091269adf9ca549c](assets/t01091269adf9ca549c.gif)
+
+多重影分身非常合适这个概念，鸣人本体是原型对象！通过“多重影分身术”也就是原型模式（自己本身使用忍术进行创建），进行分身！创建新对象，（分身）。
+
+需要注意的是，创建新“分身”的人就是鸣人！这个意思就是说原型对象自己不仅是个对象还是个工厂！并且通过克隆方式创建的对象是全新的对象，它们都是有自己的新的地址，通常对克隆模式所产生的新对象（影分身）进行修改（攻击）是不会对原型对象（鸣人）造成任何影响的！，每一个克隆对象都是相对独立的，通过不同的方式对克隆对象进行修改后，可以的到一系列相似但不完全相同的对象。（参考多重影分身之色诱术）。
+
+
+
+浅克隆存在的问题
+– 被复制的对象的所有变量都含有与原来的对象相同的值，而所有的对其他对象的引用都
+仍然指向原来的对象。
+• 深克隆如何实现?
+– 深克隆把引用的变量指向复制过的新对象，而不是原有的被引用的对象。
+– 深克隆：让已实现Clonable接口的类中的属性也实现Clonable接口
+– 基本数据类型和String能够自动实现深度克隆（值的复制）
+
+1.**浅克隆**
+
+在浅克隆中，如果原型对象的成员变量是值类型（八大基本类型，byte,short,int,long,char,double,float,boolean）.那么就直接复制，如果是复杂的类型，（枚举，String,对象）就只复制对应的内存地址。
+
+![1557796756474](assets/1557796756474.png)
+
+修改了克隆对象的原型对象也会变。他们是共用的。而值类型不是共用的！
+
+2.深克隆
+
+全部复制，然后各自独立。你修改克隆对象对于原型对象没有丝毫影响，完全的影分身！
+
+
+
+![1557797152594](assets/1557797152594.png)
+
+
+
+需要克隆的类
+
+~~~java
+public class Sheep implements Cloneable,Serializable
+~~~
+
+关键点在于，实现cloneable接口以及用object的clone方法。
+
+浅克隆
+
+~~~java
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		Object obj = super.clone();  //直接调用object对象的clone()方法！
+		return obj;
+	}
+
+~~~
+
+
+
+深克隆
+
+~~~java
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		Object obj = super.clone();  //直接调用object对象的clone()方法！
+		
+		
+		//添加如下代码实现深复制(deep Clone)
+		Sheep2 s = (Sheep2) obj;
+		s.birthday = (Date) this.birthday.clone();  //把属性也进行克隆！
+		
+		return obj;
+	}
+
+~~~
+
+
+
+利用序列化和反序列化技术实现深克隆
+
+~~~java
+//使用序列化和反序列化实现深复制
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream    oos = new ObjectOutputStream(bos);
+		oos.writeObject(s1);
+		byte[] bytes = bos.toByteArray();
+		
+		ByteArrayInputStream  bis = new ByteArrayInputStream(bytes);
+		ObjectInputStream	  ois = new ObjectInputStream(bis);
+		
+		Sheep s2 = (Sheep) ois.readObject();   //克隆好的对象！
+~~~
+
+
+
+应用场景
+
+短时间大量创建对象时，原型模式和普通new方式效率测试
+• 开发中的应用场景
+– 原型模式很少单独出现，一般是和工厂方法模式一起出现，通过clone
+的方法创建一个对象，然后由工厂方法提供给调用者。
+• spring中bean的创建实际就是两种：单例模式和原型模式。（当然，原型
+模式需要和工厂模式搭配起来）
